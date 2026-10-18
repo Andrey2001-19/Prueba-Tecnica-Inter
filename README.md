@@ -28,3 +28,9 @@ Aplicación web full-stack desarrollada como prueba técnica para la gestión de
 1. Abre una terminal y navega hasta la carpeta `Back/`.
 2. Ejecuta el siguiente comando para iniciar el servidor:
    dotnet run
+
+### 3. FrontEnd (Angular)
+1. Abre una terminal y navega hasta la carpeta Front/
+2. Instala las dependencias `npm install`
+3. Inicia la aplicación `ng serve`
+4. Abre tu navegador en http://localhost:4200
