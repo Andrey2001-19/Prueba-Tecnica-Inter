@@ -1,0 +1,11 @@
+# Dependencias y compilación de Node (Frontend)
+/Frontend/node_modules/
+/Frontend/dist/
+.angular/
+
+# Compilación y archivos de usuario de .NET (Backend)
+/Backend/**/bin/
+/Backend/**/obj/
+.vs/
+*.user
+*.suo
