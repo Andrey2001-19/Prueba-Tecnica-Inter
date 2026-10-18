@@ -1,0 +1,165 @@
+<div class="main-container">
+ 
+  <header class="header-card">
+    <h2>🎓 Sistema de Registro Académico Inter</h2>
+    <p>Gestión de Estudiantes e Inscripción de Materias</p>
+  </header>
+
+  
+
+  
+  <div class="form-card">
+    <h3>{{ editandoId ? '✏️ Editar Estudiante' : '📝 Nuevo Registro de Estudiante' }}</h3>
+    
+    <div class="form-group">
+      <label>Nombre Completo: <span style="color: #ef4444;">*</span></label>
+      <input type="text" [(ngModel)]="nombreEstudiante" >
+    </div>
+
+    <div class="form-group">
+      <label>Correo Electrónico: <span style="color: #ef4444;">*</span></label>
+      <input type="email" [(ngModel)]="correoEstudiante" >
+    </div>
+
+    
+    <div *ngIf="mensajeError" class="alert alert-error">
+      {{ mensajeError }}
+    </div>
+
+    <div class="selection-header">
+      <h4>Selecciona 3 Materias (Profesores diferentes):</h4>
+      <span class="creditos-badge" [class.limit-reached]="materiasSeleccionadas.length === 3">
+        Créditos: {{ materiasSeleccionadas.length * 3 }} / 9 
+        <span *ngIf="materiasSeleccionadas.length === 3"> (¡Límite alcanzado!)</span>
+      </span>
+    </div>
+
+    <div class="materias-grid">
+      <div *ngFor="let m of materias" class="materia-item">
+        <label>
+         
+          <input type="checkbox" 
+                 [checked]="materiasSeleccionadas.includes(m.id)" 
+                 (change)="onMateriaChange(m.id, $event)">
+          <div>
+            <strong>{{ m.nombre }}</strong>
+            <span class="profesor-info">Prof. {{ m.profesorNombre }} | {{ m.creditos }} Créditos</span>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+  <button type="button" (click)="registrar()" class="btn-primary">
+    {{ editandoId ? 'Actualizar Registro' : 'Registrarse en Línea' }}
+  </button>
+  <button type="button" *ngIf="editandoId" (click)="cancelarEdicion()" class="btn-secondary">
+    Cancelar
+  </button>
+</div>
+  </div>
+
+  
+
+
+
+  <hr class="divider">
+
+ 
+  <div class="table-card">
+    <h3>📚 Estudiantes Registrados y Compañeros de Clase</h3>
+    <div class="table-responsive">
+      <table class="styled-table">
+        <thead>
+          <tr>
+            <th>Estudiante</th>
+            <th>Correo</th>
+            <th>Créditos</th>
+            <th>Materias y Compañeros</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let est of estudiantes">
+            <td><strong>{{ est.nombre }}</strong></td>
+            <td>{{ est.correo }}</td>
+            <td class="text-center">{{ est.totalCreditos }}</td>
+            <td>
+              <ul class="materias-list">
+  <li *ngFor="let mat of est.materias">
+    <strong>{{ mat.nombre }}</strong> <span class="text-muted">(Prof. {{ mat.profesor }})</span>
+    
+    <div style="margin-top: 4px;">
+      
+      <button *ngIf="mat.companieros && mat.companieros.length > 0" 
+        type="button" 
+        (click)="verCompanieros(mat.nombre, mat.profesor, mat.companieros)" 
+        class="btn-companieros-badge">
+  👥 Compañeros ({{ mat.companieros.length }})
+</button>
+
+      
+      <span *ngIf="!mat.companieros || mat.companieros.length === 0" class="companieros-text italic">
+        👥 Compañeros: Nadie más inscrito
+      </span>
+    </div>
+  </li>
+</ul>
+            </td>
+            <td class="text-center">
+  <button type="button" (click)="prepararEdicion(est)" class="btn-edit">Editar</button>
+  <button type="button" (click)="eliminar(est.id)" class="btn-delete">Eliminar</button>
+</td>
+          </tr>
+          <tr *ngIf="estudiantes.length === 0">
+            <td colspan="5" class="text-center text-muted" style="padding: 20px;">No hay estudiantes registrados todavía.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  
+  <div *ngIf="mostrarPopup" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-icon">⚠️</div>
+      <h3>{{ tituloPopup }}</h3>
+      <p>{{ mensajePopup }}</p>
+      
+      <div class="modal-buttons">
+        <button type="button" (click)="ejecutarAccionPopup()" class="btn-modal-confirm">Sí, estoy seguro</button>
+        <button type="button" (click)="cerrarPopup()" class="btn-modal-cancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <div *ngIf="mostrarModalCompanieros" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-icon">👥</div>
+      <h3>Detalles de la Clase</h3>
+      
+      
+      <p class="modal-materia-title">{{ materiaSeleccionadaTitulo }}</p>
+      
+      
+      <p class="modal-profesor-subtitle">👨‍🏫 Prof. {{ profesorSeleccionadoNombre }}</p>
+
+      <hr class="modal-divider">
+
+      <h4 style="text-align: left; font-size: 14px; color: #475569; margin: 10px 0 8px 0;">Compañeros inscritos:</h4>
+      
+      <ul class="companieros-modal-list">
+        <li *ngFor="let comp of listaCompanierosModal" class="companiero-item">
+          <div class="comp-nombre">👤 {{ comp.nombre }}</div>
+          <div class="comp-correo">✉️ {{ comp.correo }}</div>
+        </li>
+        <li *ngIf="listaCompanierosModal.length === 0" class="italic text-muted" style="text-align: center; padding: 10px;">
+          Nadie más inscrito en esta clase todavía.
+        </li>
+      </ul>
+
+      <button type="button" (click)="cerrarModalCompanieros()" class="btn-modal">Cerrar</button>
+    </div>
+  </div>
+</div>
